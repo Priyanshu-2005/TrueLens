@@ -1,4 +1,4 @@
-# SmartGrow
+# TrueLens
 mini project sem6
 
 ## Team
