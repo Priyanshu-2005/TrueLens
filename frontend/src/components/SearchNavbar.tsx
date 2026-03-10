@@ -3,7 +3,7 @@ import { Input } from "./ui/input";
 
 export default function SearchNavbar() {
   return (
-    <div className="relative w-full max-w-full sm:w-96">
+    <div className="relative w-full max-w-full lg:w-96">
       <div className="relative">
         <Field>
           <Input

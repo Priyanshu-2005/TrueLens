@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import ErrorPage from "./pages/ErrorPage";
 import AppLayout from "./pages/AppLayout";
 import SignIn from "./pages/SignIn";
+import UploadMedia from "./pages/UploadMedia";
 
 const router = createBrowserRouter(
   [
@@ -18,6 +19,11 @@ const router = createBrowserRouter(
         {
           path: "/sign-in",
           element: <SignIn />,
+          errorElement: <ErrorPage />,
+        },
+        {
+          path: "/upload-media",
+          element: <UploadMedia />,
           errorElement: <ErrorPage />,
         },
         {

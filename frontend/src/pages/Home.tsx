@@ -6,10 +6,13 @@ import { CardImage } from "~/components/CardImage";
 import Waves from "~/components/Waves";
 import Dither from "~/components/Dither";
 import GridMotion from "~/components/GridMotion";
+import { useAppContext } from "~/context/useAppContext";
 
 const session = false; // TODO: Replace with actual session check
 
 export default function Home() {
+  const { theme } = useAppContext();
+
   return (
     <main className="flex flex-col items-center justify-between">
       <div className="flex min-h-[calc(100vh-var(--header-height,4rem))] w-full flex-col items-center justify-between gap-16">
@@ -20,7 +23,9 @@ export default function Home() {
                 {/* Dither canvas behind the text */}
                 <span className="animate-in fade-in absolute inset-0 -inset-x-2 -z-10 overflow-hidden duration-1000">
                   <Dither
-                    waveColor={[0.32, 0.15, 1]}
+                    waveColor={
+                      theme === "light" ? [0.48, 0.48, 0.48] : [0.32, 0.15, 1]
+                    }
                     disableAnimation={false}
                     enableMouseInteraction
                     mouseRadius={0}
@@ -77,7 +82,7 @@ export default function Home() {
         <div className="my-auto">
           <div className="font-geist mx-auto flex w-fit flex-col items-center px-6 py-8">
             <div className="mx-auto flex w-fit items-center gap-4 font-mono">
-              <Link to="">
+              <Link to="/upload-media">
                 <Button
                   size={"lg"}
                   className="bg-muted/50 mt-4 cursor-pointer text-lg font-normal shadow-none"
