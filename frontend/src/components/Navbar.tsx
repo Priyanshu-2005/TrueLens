@@ -35,6 +35,7 @@ export default function Navbar() {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigateLink title="" icon={<House size={20} />} path="/" />
+              <NavigateLink title="Upload Media" path="/upload-media" />
               <NavigateLink title="About us" path="/about-us" />
             </NavigationMenuList>
           </NavigationMenu>
@@ -113,6 +114,16 @@ function MobileNav() {
             Home
           </Link>
           <Link
+            to="/upload-media"
+            className="hover:bg-accent flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium"
+            onClick={() => {
+              setMenuOpen(false);
+              document.body.style.overflow = "";
+            }}
+          >
+            Upload Media
+          </Link>
+          <Link
             to="/about-us"
             className="hover:bg-accent flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium"
             onClick={() => {
@@ -140,7 +151,6 @@ export function AuthButton() {
     //   setSession(data.session);
     //   setAvatarUrl(data.session?.user?.user_metadata?.avatar_url ?? null);
     // });
-
     // // Keep in sync on tab focus, sign in/out events
     // const {
     //   data: { subscription },
@@ -150,7 +160,6 @@ export function AuthButton() {
     //     setAvatarUrl(session?.user?.user_metadata?.avatar_url ?? null);
     //   },
     // );
-
     // return () => subscription.unsubscribe();
   }, []);
 
