@@ -46,6 +46,8 @@ async def verify_and_sign_document(file: UploadFile = File(...), db: Session = D
         contents = await file.read()
         file_size = len(contents)
 
+        logger.info(f"[VERIFY] Received: filename='{file.filename}', content_type='{file.content_type}', size={file_size}")
+
         # ── Validate file size ──
         if file_size > MAX_FILE_SIZE:
             raise HTTPException(status_code=400, detail="File too large. Max 10MB.")

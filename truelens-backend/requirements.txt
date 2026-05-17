@@ -1,3 +1,6 @@
+# ── Use CPU-only PyTorch (keeps deploy size small on Render) ──
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 # ── API Framework & Server ──
 fastapi==0.109.2
 uvicorn==0.27.0.post1
@@ -22,8 +25,14 @@ pillow==10.2.0
 exifread==3.0.0
 numpy>=1.24.0
 qrcode[pil]==8.2
-wikipedia>=1.4.0
+
+# ── AI / Gemini ──
 google-generativeai>=0.4.0
+wikipedia>=1.4.0
+
+# ── ML / AI Text Detection (Transformer + Stylometry Ensemble) ──
+torch>=2.1.0
+transformers>=4.36.0
 
 # ── Document Analysis ──
 pdfplumber>=0.10.0
@@ -34,12 +43,3 @@ python-whois==0.8.0
 
 # ── Cryptographic Signing ──
 cryptography==42.0.2
-
-# ── ML / AI Text Detection (optional — falls back to stylometry if unavailable) ──
-# Uncomment these for transformer-based AI detection:
-# transformers>=4.36.0
-# torch>=2.1.0 --index-url https://download.pytorch.org/whl/cpu
-# scipy>=1.11.0
-
-# ── Utilities ──
-python-dotenv==1.0.1

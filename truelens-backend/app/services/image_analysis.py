@@ -10,6 +10,8 @@ All methods are pure-Python using Pillow, numpy, and exifread.
 """
 
 import io
+import os
+import json
 import math
 import struct
 import logging
@@ -354,6 +356,67 @@ def _basic_gan_check(image_bytes: bytes) -> Dict[str, Any]:
 
 
 # ══════════════════════════════════════════════════════════════
+#  4. GEMINI VISION FORENSICS
+# ══════════════════════════════════════════════════════════════
+
+def analyze_with_gemini_vision(image_bytes: bytes) -> Dict[str, Any]:
+    """
+    Feeds the raw image to Gemini 1.5 Flash to act as a digital forensics expert,
+    looking for deepfake artifacts like extra fingers, melting textures, or 
+    impossible shadows.
+    """
+    try:
+        import google.generativeai as genai
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is not set.")
+            
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        img = Image.open(io.BytesIO(image_bytes))
+        
+        prompt = """
+You are an expert digital forensics analyst. Examine this image for any visual signs of AI generation or photoshopping. 
+Look for anomalous anatomical details (e.g., extra fingers, mismatched eyes), nonsensical background text, physically impossible lighting or shadows, melting textures, and unusually smooth skin. 
+Determine a 'suspicion_score' between 0 (completely real) and 100 (definitely AI/manipulated).
+Provide a list of brief 'highlights' pointing out specific anomalies, if any.
+Output the result as raw JSON in exactly this format, with no markdown formatting or extra text:
+{
+  "suspicion_score": 85,
+  "highlights": ["Extra finger on left hand", "Text in background is gibberish"]
+}
+        """
+        
+        generation_config = genai.GenerationConfig(
+            response_mime_type="application/json",
+            temperature=0.0
+        )
+        
+        response = model.generate_content(
+            [prompt, img],
+            generation_config=generation_config
+        )
+        
+        content = response.text
+        result_dict = json.loads(content)
+        
+        return {
+            "score": result_dict.get("suspicion_score", 50),
+            "evidence": {"analysis_method": "gemini_vision"},
+            "highlights": result_dict.get("highlights", []),
+            "error": False
+        }
+    except Exception as e:
+        logger.warning(f"Gemini Vision analysis failed: {e}")
+        return {
+            "score": 0,
+            "error": True,
+            "evidence": {"error": str(e)},
+            "highlights": []
+        }
+
+# ══════════════════════════════════════════════════════════════
 #  COMBINED IMAGE ANALYSIS
 # ══════════════════════════════════════════════════════════════
 
@@ -401,5 +464,17 @@ def analyze_image(image_bytes: bytes) -> List[Dict[str, Any]]:
         "evidence": gan_result["evidence"],
         "highlights": gan_result["highlights"],
     })
+
+    # ── 4. AI Vision Forensics (Gemini) ──
+    gemini_result = analyze_with_gemini_vision(image_bytes)
+    if not gemini_result.get("error"):
+        signals.append({
+            "score": gemini_result["score"],
+            "confidence": 0.85,
+            "label": "AI Vision Forensics (Gemini)",
+            "type": "image",
+            "evidence": gemini_result["evidence"],
+            "highlights": gemini_result["highlights"],
+        })
 
     return signals

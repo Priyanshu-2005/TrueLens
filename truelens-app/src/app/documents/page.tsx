@@ -41,19 +41,26 @@ export default function DocumentsPage() {
       const formData = new FormData();
       formData.append("file", file);
 
+      console.log(`[Upload] Sending file: name="${file.name}", type="${file.type}", size=${file.size}`);
+
       const res = await fetch("/api/v1/documents", {
         method: "POST",
         body: formData,
       });
 
       const data = await res.json();
+      console.log(`[Upload] Response status=${res.status}:`, data);
 
       if (data.success) {
         setDocuments((prev) => [data.document, ...prev]);
         setSelectedDoc(data.document);
+      } else {
+        console.error("[Upload] Upload failed:", data.error || "Unknown error");
+        alert(data.error || "Upload failed. Please try again.");
       }
     } catch (err) {
       console.error("Upload error:", err);
+      alert("Network error during upload. Please try again.");
     } finally {
       setUploading(false);
     }

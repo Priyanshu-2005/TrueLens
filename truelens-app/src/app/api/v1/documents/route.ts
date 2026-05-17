@@ -15,15 +15,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Proxy the request to the Python backend
-    // Since it's formData, we pass it directly
+    // Read the raw bytes from the uploaded file
+    const fileBytes = await file.arrayBuffer();
+    const buffer = Buffer.from(fileBytes);
+
+    console.log(`[Document Proxy] Forwarding file: name="${file.name}", type="${file.type}", size=${buffer.length}`);
+
+    // Reconstruct using Node.js File (preserves name + type natively)
+    const proxyFile = new File([buffer], file.name, {
+      type: file.type || "application/octet-stream",
+    });
+
+    const proxyForm = new FormData();
+    proxyForm.append("file", proxyFile);
+
     const response = await fetch(`${BACKEND_URL}/api/v1/documents/verify`, {
       method: "POST",
-      body: formData,
+      body: proxyForm,
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      console.error(`[Document Proxy] Backend returned ${response.status}:`, errorData);
       return NextResponse.json(
         { error: errorData.detail || "Failed to process document in backend." },
         { status: response.status }
