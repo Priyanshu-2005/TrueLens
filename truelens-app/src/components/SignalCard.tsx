@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown, FileText, Image, Globe, Star, Search,
-  AlertTriangle, CheckCircle, Info
+  AlertTriangle, CheckCircle, Info, Newspaper
 } from "lucide-react";
 import { Signal } from "@/lib/types";
 
@@ -13,6 +13,7 @@ const signalIcons: Record<string, React.ComponentType<{ className?: string }>> =
   image: Image,
   domain: Globe,
   review: Star,
+  news: Newspaper,
   provenance: Search,
   metadata: Info,
 };
@@ -22,6 +23,7 @@ const signalLabels: Record<string, string> = {
   image: "Image Forensics",
   domain: "Domain Trust",
   review: "Review Detection",
+  news: "News Authenticity",
   provenance: "Provenance Check",
   metadata: "Metadata Analysis",
 };

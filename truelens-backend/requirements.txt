@@ -1,16 +1,45 @@
+# ── API Framework & Server ──
 fastapi==0.109.2
-uvicorn[standard]==0.27.1
-pydantic==2.6.1
-pydantic-settings==2.1.0
+uvicorn==0.27.0.post1
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+python-dotenv>=1.0.0
+
+# ── Database ──
 SQLAlchemy==2.0.25
 psycopg2-binary==2.9.9
 alembic==1.13.1
+
+# ── Task Queue ──
 celery==5.3.6
 redis==5.0.1
 
+# ── File Handling ──
 python-multipart==0.0.9
+
+# ── Image Forensics & Utilities ──
 pillow==10.2.0
 exifread==3.0.0
+numpy>=1.24.0
+qrcode[pil]==8.2
+wikipedia>=1.4.0
+google-generativeai>=0.4.0
+
+# ── Document Analysis ──
+pdfplumber>=0.10.0
+pytesseract>=0.3.10
+
+# ── Domain Analysis ──
 python-whois==0.8.0
+
+# ── Cryptographic Signing ──
 cryptography==42.0.2
+
+# ── ML / AI Text Detection (optional — falls back to stylometry if unavailable) ──
+# Uncomment these for transformer-based AI detection:
+# transformers>=4.36.0
+# torch>=2.1.0 --index-url https://download.pytorch.org/whl/cpu
+# scipy>=1.11.0
+
+# ── Utilities ──
 python-dotenv==1.0.1

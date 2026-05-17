@@ -6,11 +6,12 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, Scan, LayoutDashboard, FileCheck, Code2,
-  Menu, X, LogIn, ChevronDown
+  Menu, X, LogIn, ChevronDown, ShieldQuestion
 } from "lucide-react";
 
 const navLinks = [
   { href: "/scan", label: "Scan", icon: Scan },
+  { href: "/fact-check", label: "Fact Check", icon: ShieldQuestion },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/documents", label: "Documents", icon: FileCheck },
   { href: "/developers", label: "Developers", icon: Code2 },

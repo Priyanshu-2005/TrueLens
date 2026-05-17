@@ -4,9 +4,10 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, Search, CheckCircle, XCircle, AlertTriangle,
-  Hash, Clock, FileText, Loader2
+  Hash, Clock, FileText, Loader2, QrCode, Download
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 interface VerificationResult {
   verified: boolean;
@@ -26,18 +27,54 @@ export default function VerifyPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
+  const [scannerOpen, setScannerOpen] = useState(false);
+
+  // Initialize scanner
+  const startScanner = () => {
+    setScannerOpen(true);
+    setResult(null);
+    
+    // Slight delay to allow DOM to render the scanner div
+    setTimeout(() => {
+      const scanner = new Html5QrcodeScanner(
+        "reader",
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        false
+      );
+      
+      scanner.render(
+        (decodedText) => {
+          // If URL like https://truelens.app/verify?hash=..., extract hash
+          const hashMatch = decodedText.match(/hash=([a-f0-9]{64})/i);
+          const val = hashMatch ? hashMatch[1] : decodedText;
+          setInput(val);
+          scanner.clear();
+          setScannerOpen(false);
+          // auto submit
+          verifyInput(val);
+        },
+        (error) => {
+          // parse errors ignore
+        }
+      );
+    }, 100);
+  };
 
   const handleVerify = async () => {
-    if (!input.trim()) return;
+    verifyInput(input);
+  };
+
+  const verifyInput = async (valToVerify: string) => {
+    if (!valToVerify.trim()) return;
     setLoading(true);
     setResult(null);
 
     try {
-      const isHash = input.length === 64 && /^[a-f0-9]+$/.test(input);
+      const isHash = valToVerify.length === 64 && /^[a-f0-9]+$/.test(valToVerify);
       const res = await fetch("/api/v1/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(isHash ? { hash: input } : { scanId: input }),
+        body: JSON.stringify(isHash ? { hash: valToVerify } : { scanId: valToVerify }),
       });
       const data = await res.json();
       setResult(data);
@@ -82,20 +119,39 @@ export default function VerifyPage() {
           <label className="text-sm font-medium text-text-secondary mb-2 block">
             Document Hash or Scan ID
           </label>
-          <div className="relative">
-            <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Enter SHA-256 hash or doc_xxx scan ID"
-              className="input-field !pl-12 font-mono text-sm"
-              onKeyDown={(e) => e.key === "Enter" && handleVerify()}
-            />
+          <div className="flex gap-2 relative">
+            <div className="relative flex-1">
+              <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Enter SHA-256 hash or doc_xxx scan ID"
+                className="input-field !pl-12 font-mono text-sm"
+                onKeyDown={(e) => e.key === "Enter" && handleVerify()}
+              />
+            </div>
+            <button
+              onClick={startScanner}
+              className="px-4 py-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors"
+              title="Scan QR Code"
+            >
+              <QrCode className="w-5 h-5 text-text-secondary" />
+            </button>
           </div>
           <p className="text-xs text-text-muted mt-2">
             Enter the document&apos;s SHA-256 hash or TrueLens scan ID to verify its authenticity
           </p>
+
+          {scannerOpen && (
+            <div className="mt-4 p-2 bg-white/5 rounded-lg border border-white/10">
+              <div className="flex justify-between items-center mb-2 px-2">
+                <span className="text-sm text-text-secondary">Scan QR Code</span>
+                <button onClick={() => setScannerOpen(false)} className="text-xs text-brand-light hover:underline">Close</button>
+              </div>
+              <div id="reader" className="w-full rounded overflow-hidden"></div>
+            </div>
+          )}
         </motion.div>
 
         {/* Verify Button */}
@@ -199,6 +255,20 @@ export default function VerifyPage() {
                       <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Document Hash</p>
                       <p className="text-xs font-mono text-brand-light break-all">{result.document.hash}</p>
                     </div>
+
+                    {result.verified && (
+                      <div className="mt-4 text-center">
+                        <a
+                          href={`http://127.0.0.1:8000/api/v1/documents/${result.document.hash}/evidence`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-brand-mid/20 text-brand-light border border-brand-mid/30 rounded-lg hover:bg-brand-mid/30 transition-colors text-sm font-medium"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download Evidence Pack
+                        </a>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
